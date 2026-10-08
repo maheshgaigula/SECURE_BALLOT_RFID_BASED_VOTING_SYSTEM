@@ -1,0 +1,13 @@
+*.o
+*.d
+*.crf
+*.axf
+*.hex
+*.map
+*.lst
+*.bak
+*.dep
+*.lnp
+*.tra
+*.sct
+*.htm

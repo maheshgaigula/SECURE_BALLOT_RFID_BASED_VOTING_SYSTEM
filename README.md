@@ -1,532 +1,527 @@
-# Smart Exam Hall Monitoring and Management System
+# 🔐 Secure Ballot – RFID-Based Electronic Voting System
 
 ## 📌 Project Overview
 
-The **Smart Exam Hall Monitoring and Management System** is an embedded system designed to assist in managing and monitoring examination sessions.
+The **Secure Ballot – RFID-Based Electronic Voting System** is an embedded system developed using the **LPC2148 ARM7 microcontroller** to provide a secure and controlled electronic voting process.
 
-The system uses an **ARM7-based LPC2148 microcontroller** and integrates multiple peripherals including an LCD, 4×4 keypad, RTC, ADC, LM35 temperature sensor, multiplexed 7-segment display, LEDs, buzzer, and external interrupts.
+The system integrates an **EM-18 RFID reader, 20×4 LCD, 4×4 keypad, RTC, I2C EEPROM, UART, and password-based authentication**.
 
-The system allows the user to configure examination parameters, monitor examination time, pause/resume the examination, monitor temperature, and provide visual and audio alerts.
-
----
-
-## 🎯 Objectives
-
-* Provide controlled examination session management.
-* Allow authorized users to configure examination settings.
-* Display real-time clock and date information.
-* Set examination start time and duration.
-* Display remaining examination time.
-* Monitor temperature using an LM35 sensor.
-* Provide pause/resume functionality using an external interrupt.
-* Provide LED warnings as examination time decreases.
-* Activate a buzzer when the examination time expires.
-* Protect configuration settings using a password.
+The system allows an administrator to configure the election, authenticate voters using RFID, prevent duplicate voting, manage the voting period, count votes, and display election results.
 
 ---
 
-## ⚙️ Hardware Requirements
+# 🎯 Objectives
 
-* LPC2148 ARM7 microcontroller
-* 16×2 LCD
-* 4×4 matrix keypad
-* Real-Time Clock (RTC)
-* LM35 temperature sensor
-* ADC
-* Two-digit multiplexed 7-segment display
-* LEDs
-* Buzzer
-* External interrupt switches
-* Connecting wires / breadboard or project hardware setup
-* Suitable power supply
-
----
-
-## 💻 Software Requirements
-
-* Embedded C
-* ARM7 / LPC2148
-* Keil µVision IDE
-* ARM7 compiler/toolchain
-* GPIO programming
-* ADC programming
-* RTC programming
-* External interrupt programming
-* LCD interfacing
-* Keypad interfacing
-* 7-segment interfacing
-* Register-level programming
-* VIC interrupt controller
+- Provide secure voter authentication using RFID.
+- Authenticate the administrator using RFID and password protection.
+- Validate registered voters.
+- Prevent unauthorized voting.
+- Prevent duplicate voting.
+- Configure election start and end time.
+- Store voter status using EEPROM.
+- Provide a user-friendly LCD and keypad interface.
+- Maintain vote counts.
+- Display election results.
+- Provide UART-based serial monitoring.
 
 ---
 
-## 🧩 System Architecture
+# ⚙️ Hardware Requirements
 
-![System Architecture](system_architecture.png)
+- LPC2148 ARM7 Microcontroller
+- EM-18 RFID Reader
+- 20×4 LCD
+- 4×4 Matrix Keypad
+- RTC
+- I2C EEPROM
+- UART Interface
+- LEDs
+- Power Supply
+- Connecting Wires / Hardware Setup
 
-The LPC2148 acts as the main controller and interfaces with the LCD, keypad, RTC, ADC, LM35 temperature sensor, external interrupt, multiplexed 7-segment display, LEDs, and buzzer.
+---
+
+# 💻 Software Requirements
+
+- Embedded C
+- LPC2148 ARM7
+- Keil µVision
+- ARM7 Compiler
+- GPIO Programming
+- UART Programming
+- I2C Programming
+- RTC Programming
+- LCD Interfacing
+- Keypad Interfacing
+- RFID Interfacing
+- EEPROM Interfacing
+- Embedded Debugging
+- Serial Terminal
+
+---
+
+# 🧩 System Architecture
+
+The LPC2148 acts as the main controller and interfaces with the RFID reader, LCD, keypad, RTC, EEPROM, and UART monitoring interface.
 
 ```text
-                         ┌─────────────┐
-                         │   LPC2148       │
-                         │    ARM7         │
-                         └──────┬──────┘
-                                  │
-          ┌──────────┬───────┼────────┬────────┐
-          │             │         │          │          │
-          ▼          ▼           ▼          ▼          ▼
-        LCD        Keypad        RTC        ADC        EINT
-                                             │       Pause / Resume
-                                            LM35
-                                             │
-                                             ▼
-                                      Temperature
-                                      Monitoring
+                    ┌──────────────────┐
+                    │   EM-18 RFID     │
+                    │     Reader       │
+                    └────────┬─────────┘
+                             │
+                           UART1
+                             │
+                             ▼
+                    ┌──────────────────┐
+                    │     LPC2148      │
+                    │      ARM7        │
+                    │  Microcontroller │
+                    └───────┬──┬──┬────┘
+                            │  │  │
+              ┌─────────────┘  │  └─────────────┐
+              │                 │                │
+              ▼                 ▼                ▼
+        ┌───────────┐     ┌───────────┐    ┌───────────┐
+        │    LCD    │     │  Keypad   │    │    RTC    │
+        │   20×4    │     │    4×4    │    │           │
+        └───────────┘     └───────────┘    └───────────┘
+                                │
+                                ▼
+                         ┌──────────────┐
+                         │ I2C EEPROM   │
+                         │ Voter Status │
+                         └──────────────┘
+                                │
+                                ▼
+                         ┌──────────────┐
+                         │ UART / PC    │
+                         │  Monitoring  │
+                         └──────────────┘
 
-                                ┌─────────────────┐
-                                │ Exam Management      │
-                                └────────┬────────┘
-                                            │
-                              ┌──────────┼──────────┐
-                              ▼             ▼            ▼
-                         7-Segment         LEDs       Buzzer
-                         Remaining        Warnings    Exam End
-                            Time
-```
+# 📸 Project Demonstration
 
----
+## 🔧 Hardware Setup
 
-## 📸 Project Demonstration
+The complete hardware setup of the Secure Ballot RFID-Based Electronic Voting System.
 
-### 🔢 Keypad and LCD Display
-
-The 4×4 matrix keypad is used for user input and configuration, while the LCD displays system information, examination status, temperature, and other parameters.
-
-![Keypad and LCD Display](images/keypad_and_display.jpg)
-
-### 🔧 Project Hardware
-
-The complete hardware setup of the Smart Exam Hall Monitoring and Management System.
-
-![Project Hardware](images/project_hardware.jpg)
-
-### 🌡️ Temperature Display
-
-The LM35 temperature sensor is interfaced with the LPC2148 ADC, and the measured temperature is displayed on the LCD.
-
-![Temperature Display](images/temperature_display.jpg)
+![Project Hardware](images/hardware_setup.jpg)
 
 ---
 
-## 📁 Project Structure
+## 📟 LCD and Keypad Interface
 
-```text
-Smart-Exam-Hall-Monitoring-System/
+The LCD and 4×4 keypad are used for menu navigation, password entry, voting selection, and system information.
+
+![Keypad and LCD Display](images/lcd_keypad.jpg)
+
+---
+
+## 🧾 Serial Audit Log
+
+The UART serial interface is used to monitor RFID communication and system information during development and debugging.
+
+![Serial Audit Log](images/serial_audit_log.jpg)
+
+---
+
+## 🏆 Election Result
+
+The system maintains vote counts and displays the election result after the voting process.
+
+![Election Result](images/election_results.jpg)
+
+📁 Project Structure
+
+SECURE_BALLOT_RFID_BASED_VOTING_SYSTEM/
 │
-├── Smart_Exam_Hall_Monitoring_and_Management_System1.c
-├── project.c
-├── project.h
-├── project_declaration.h
-├── project_definations.c
-├── declaration.h
-├── all_macro1.h
-├── system_architecture.png
 ├── images/
-│   ├── keypad_and_display.jpg
-│   ├── project_hardware.jpg
-│   └── temperature_display.jpg
+│   ├── election_results.jpg
+│   ├── hardware_setup.jpg
+│   ├── lcd_keypad.jpg
+│   └── serial_audit_log.jpg
+│
+├── Check.c
+├── DATA.c
+├── I2C.c
+├── I2c_Eeprom.c
+├── KPM.c
+├── My_Str_Func.c
+├── Officer_interface.c
+├── Password.c
+├── RTC_Defaults.c
+├── UART.c
+├── UART1.c
+├── Voter_Interface.c
+├── delay.c
+├── lcd.c
+├── main.c
+│
+├── Header Files
+│
+├── project_files.uvproj
+├── project_files.uvopt
+├── major_project.hex
 └── README.md
-```
 
-### File Description
+📂 File and Folder Description
+File / Folder	Purpose
+images/	Project hardware and demonstration images
+main.c	Main application entry point
+Voter_Interface.c	Voter-related operations
+Officer_interface.c	Administrator/officer operations
+Password.c	Password authentication and management
+KPM.c	Keypad interfacing
+lcd.c	LCD interfacing
+UART.c	UART communication
+UART1.c	UART1 communication for RFID interface
+I2C.c	I2C communication
+I2c_Eeprom.c	EEPROM read/write operations
+RTC_Defaults.c	RTC-related configuration
+delay.c	Delay functions
+My_Str_Func.c	String utility functions
+project_files.uvproj	Keil µVision project file
+project_files.uvopt	Keil project options
+major_project.hex	Generated HEX file
+README.md	Project documentation
 
-| File / Folder                                         | Purpose                                                                |
-| ----------------------------------------------------- | ---------------------------------------------------------------------- |
-| `Smart_Exam_Hall_Monitoring_and_Management_System1.c` | Main application logic and interrupt handling                          |
-| `project.c`                                           | LCD, keypad, ADC, LM35, delay and 7-segment driver implementations     |
-| `project.h`                                           | Function declarations for peripheral modules                           |
-| `project_declaration.h`                               | Function declarations for exam-management and RTC functions            |
-| `project_definations.c`                               | Password, RTC, exam configuration and exam-management functions        |
-| `declaration.h`                                       | Peripheral function declarations                                       |
-| `all_macro1.h`                                        | Microcontroller definitions, data types, macros and pin configurations |
-| `system_architecture.png`                             | System architecture diagram                                            |
-| `images/`                                             | Real project hardware and demonstration images                         |
-| `README.md`                                           | Project documentation                                                  |
 
-### Major Modules
+🔐 Administrator Authentication
+The administrator must authenticate before accessing election management functions.
+Administrator RFID Card
+          ↓
+      EM-18 Reader
+          ↓
+        UART1
+          ↓
+    RFID Validation
+          ↓
+   Password Verification
+          ↓
+      ┌────┴────┐
+      │         │
+    Valid     Invalid
+      │         │
+      ▼         ▼
+ Admin Menu   Access Denied
 
-* **LPC2148 ARM7** – Main controller
-* **16×2 LCD** – Displays time, date, temperature and examination information
-* **4×4 Matrix Keypad** – User input and configuration
-* **RTC** – Real-time clock and date management
-* **LM35 + ADC** – Temperature monitoring
-* **External Interrupts** – Configuration and pause/resume control
-* **2-Digit 7-Segment Display** – Displays remaining examination time
-* **LED Warning System** – Provides time-based visual warnings
-* **Buzzer** – Provides examination completion alert
-* **Exam Management Logic** – Handles start time, duration, pause/resume and remaining-time calculation
+The administrator can access functions such as:
+- Election configuration
+- Voting start time
+- Voting end time
+- Password modification
+- Election result viewing
+- Result announcement
+The system also provides protection against repeated incorrect password attempts.
+🗳️ Voter Authentication and Voting
+The voter presents an RFID card to the EM-18 reader.
+The RFID reader sends the received card information to the LPC2148 through UART1.
+The controller validates the RFID information and checks the voter's stored status.
+Voter Presents RFID Card
+          ↓
+      EM-18 Reader
+          ↓
+        UART1
+          ↓
+    RFID Validation
+          ↓
+   Check Voter Status
+          ↓
+      ┌────┴─────┐
+      │          │
+   New Voter   Already Voted
+      │          │
+      ▼          ▼
+ Allow Voting   Reject
+      │
+      ▼
+ Party Selection
+      │
+      ▼
+ Update Vote Count
+      │
+      ▼
+ Update Voter Status
+      │
+      ▼
+ Voting Completed
 
----
+📡 RFID Communication
+The EM-18 RFID reader is used for administrator and voter identification.
+The reader communicates with the LPC2148 using UART1.
+The RFID data frame is processed by the LPC2148 before voter or administrator validation.
+Example frame structure:
+0x02 + RFID Data + 0x03
 
-## 🔐 Password-Protected Configuration
-
-The system uses a password to protect examination configuration settings.
-
-When the configuration interrupt is triggered:
-
-1. The user is asked to enter the password.
-2. The entered password is compared with the stored password.
-3. The user gets limited password attempts.
-4. After successful authentication, the user can access the configuration menu.
-
-The configuration menu provides options for:
-
-* RTC time
-* RTC date
-* Examination start time
-* Examination duration
-* Password modification
-
----
-
-## ⏰ Examination Time Management
-
+The controller receives the RFID data, processes the frame, and validates the RFID information.
+💾 EEPROM-Based Voter Validation
+An external I2C EEPROM is used to maintain voter-related information.
+The EEPROM is used for:
+- Storing voter status
+- Validating registered voters
+- Identifying voters who have already voted
+- Preventing duplicate voting
+- Maintaining voter information
+After a successful vote, the voter's status is updated so that the same voter cannot cast another vote.
+⏰ Election Time Management
+The RTC is used to control the election period.
 The administrator can configure:
-
-* Examination start hour
-* Examination start minute
-* Examination duration
-
-The system continuously compares the configured examination start time with the RTC.
-
-Once the configured start time is reached, the examination session begins automatically.
-
----
-
-## ⏱️ Remaining Time Display
-
-The remaining examination time is displayed using a **two-digit multiplexed 7-segment display**.
-
-The system calculates the remaining examination time as:
-
-```text
-Remaining Time = Exam Duration - Effective Elapsed Time
-```
-
-The system also accounts for the paused duration so that the examination countdown does not decrease while the examination is paused.
-
----
-
-## ⏸️ Pause / Resume Function
-
-An external interrupt is used to pause and resume the examination.
-
-When the pause interrupt occurs:
-
-* The current examination time is recorded.
-* The examination countdown is paused.
-* The pause count is incremented.
-
-When the interrupt occurs again:
-
-* The examination resumes.
-* The paused duration is excluded from the examination countdown.
-
-The LCD displays the pause count and current pause status.
-
----
-
-## 🌡️ Temperature Monitoring
-
-An LM35 temperature sensor is connected to the LPC2148 ADC.
-
-The temperature measurement process is:
-
-```text
-LM35 Temperature Sensor
+- Election start time
+- Election end time
+The system continuously checks the RTC time.
+Before Election Start
           ↓
-    Analog Voltage
+     Voting Closed
           ↓
-      LPC2148 ADC
+During Election Period
           ↓
-     ADC Conversion
+      Voting Active
           ↓
- Temperature Calculation
+After Election End
           ↓
-      LCD Display
-```
+     Voting Closed
 
-The temperature is calculated and displayed in degrees Celsius.
+This ensures that voting is available only during the configured election period.
+📟 LCD Interface
+The 20×4 LCD is used to display system information.
+The LCD can display:
+- Welcome messages
+- Administrator authentication
+- Password entry
+- RFID validation status
+- Voting status
+- Party selection
+- Error messages
+- Election information
+- Election results
+🔢 Keypad Interface
+The 4×4 matrix keypad is used for user input and menu navigation.
+The keypad is used for:
+- Password entry
+- Menu navigation
+- Party selection
+- Election configuration
+- Administrator operations
+🖥️ UART Serial Monitoring
+UART is used for RFID communication and serial monitoring.
+Typical UART configuration:
+Baud Rate : 9600
+Data Bits : 8
+Parity    : None
+Stop Bits : 1
 
----
-
-## 🚦 LED Warning System
-
-The system provides visual warnings based on the remaining examination time.
-
-| Remaining Time       | Indicator |
-| -------------------- | --------- |
-| More than 15 minutes | Normal    |
-| 15 minutes or less   | LED3      |
-| 10 minutes or less   | LED2      |
-| 5 minutes or less    | LED1      |
-| 0 minutes            | Buzzer    |
-
-The LED warning level changes automatically as the examination approaches completion.
-
----
-
-## 🔔 Examination Completion
-
-When the remaining examination time reaches zero:
-
-```text
-Remaining Time = 0
-        ↓
-    Exam Ends
-        ↓
-      Buzzer
-```
-
-The buzzer provides an audio indication that the examination session has finished.
-
----
-
-## 🔄 Overall Working Flow
-
-```text
+Serial monitoring can be used during development to observe RFID data and system-related information.
+🧩 Major Modules
+LPC2148 ARM7
+Main microcontroller responsible for controlling the complete system.
+EM-18 RFID Reader
+Reads RFID cards for administrator and voter authentication.
+20×4 LCD
+Displays system messages, menus, voting status, and results.
+4×4 Matrix Keypad
+Provides user input for password, menu navigation, voting selection, and configuration.
+RTC
+Provides real-time information and controls the election period.
+I2C EEPROM
+Stores voter status and related validation information.
+UART
+Provides communication with the RFID reader and serial monitoring interface.
+Election Management Logic
+Handles authentication, election timing, voter validation, voting, vote counting, and result management.
+🔄 Overall Working Flow
 Power ON
    ↓
-Initialize LPC2148 peripherals
+Initialize LPC2148 Peripherals
    ↓
-Initialize LCD, keypad, ADC, 7-segment and RTC
+Initialize LCD / Keypad / UART / RTC / EEPROM
    ↓
-Display Smart Exam Monitor System
+System Ready
    ↓
-Wait for configuration interrupt
+Administrator Authentication
+   ↓
+RFID Validation
    ↓
 Password Authentication
    ↓
-Configure RTC / Exam Time / Duration / Password
+Election Configuration
    ↓
-Wait for configured exam start time
+Wait for Voting Start Time
    ↓
-Start Examination
+Voting Period Active
    ↓
-Display Remaining Time
+Voter RFID Authentication
    ↓
-Monitor Temperature
+Check Voter Status
    ↓
-Monitor Pause / Resume Interrupt
+Allow / Reject Voting
    ↓
-Generate LED Warnings
+Party Selection
    ↓
-Remaining Time = 0
+Update Vote Count
    ↓
-Activate Buzzer
+Update Voter Status
    ↓
-Exam Completed
-```
+Continue Voting
+   ↓
+Election End Time
+   ↓
+Voting Closed
+   ↓
+Display Election Result
 
----
+🛠️ Build and Execution
+1. Open the Project
+Open the project in Keil µVision using the LPC2148 ARM7 project configuration.
+2. Configure the Target
+Select the appropriate LPC2148 ARM7 target and configure the project.
+3. Add Source Files
+Make sure all required source and header files are included.
+4. Compile the Project
+Build the project and check for compilation errors and warnings.
+5. Generate the HEX File
+Configure the project to generate the required .hex file after a successful build.
+6. Program the Microcontroller
+Use a compatible LPC2148 programming tool to transfer the generated HEX file to the microcontroller.
+7. Connect the Hardware
+Connect the RFID reader, LCD, keypad, RTC, EEPROM, LEDs, UART interface, and required hardware.
+8. Run the System
+Power on the system and verify administrator authentication, election configuration, RFID validation, voting operation, duplicate-vote prevention, and result management.
+🧪 Testing and Verification
+Module	Test Performed	Expected Result
+RFID	Card reading test	RFID data received correctly
+UART	Communication test	Correct serial data received
+LCD	Display test	Messages displayed correctly
+Keypad	Key press test	Correct key input detected
+RTC	Time test	Correct election timing
+EEPROM	Read/write test	Voter status stored correctly
+Authentication	RFID/password test	Unauthorized access rejected
+Voting	Voting operation test	Valid voter allowed to vote
+Duplicate Voting	Repeated RFID test	Already-voted voter rejected
+Results	Vote-count test	Correct result displayed
 
-## 🛠️ Build and Execution
 
-### 1. Open the Project
-
-Open the project source files in **Keil µVision** with the appropriate ARM7/LPC2148 project configuration.
-
-### 2. Configure the Target
-
-Select the target device and configure the project for the **LPC2148 ARM7 microcontroller**.
-
-### 3. Add Source Files
-
-Make sure all required source and header files are included in the Keil project.
-
-### 4. Compile the Project
-
-Build the project using the Keil build option and check for compilation errors and warnings.
-
-### 5. Generate the HEX File
-
-Configure the project to generate the required `.hex` file after a successful build.
-
-### 6. Program the Microcontroller
-
-Use a compatible LPC2148 programming/flashing tool to transfer the generated HEX file to the microcontroller.
-
-### 7. Connect the Hardware
-
-Connect the LCD, keypad, RTC, LM35, 7-segment display, LEDs, buzzer, and external interrupt switches according to the project hardware configuration.
-
-### 8. Run the System
-
-Power on the system and verify initialization, configuration, examination timing, temperature monitoring, pause/resume operation, LED warnings, and examination completion.
-
----
-
-## 🧪 Testing and Verification
-
-Each major module was tested individually before integrating it into the complete system.
-
-| Module             | Test Performed      | Expected Result                                    |
-| ------------------ | ------------------- | -------------------------------------------------- |
-| LCD                | Display test        | Text and values displayed correctly                |
-| Keypad             | Key press test      | Correct key input detected                         |
-| RTC                | Time/date test      | Correct time and date displayed                    |
-| ADC + LM35         | Temperature test    | Temperature measured and displayed                 |
-| 7-Segment          | Countdown test      | Remaining time displayed correctly                 |
-| External Interrupt | Pause/resume test   | Examination pauses and resumes correctly           |
-| LEDs               | Warning test        | Correct LED activated according to remaining time  |
-| Buzzer             | Completion test     | Buzzer activates when examination ends             |
-| Password           | Authentication test | Configuration accessible only after valid password |
-
-### Integrated Testing
-
-After individual module verification, the modules were integrated and tested as a complete system.
-
-The following complete flow was verified:
-
-```text
+🔬 Integrated Testing
+After individual module verification, all modules can be integrated and tested as a complete system.
 Power ON
    ↓
 Peripheral Initialization
    ↓
-Password Authentication
+Administrator Authentication
    ↓
-Exam Configuration
+Election Configuration
    ↓
-Exam Start
+Election Start
    ↓
-Countdown
+RFID Voter Authentication
    ↓
-Temperature Monitoring
+Voter Status Verification
    ↓
-Pause / Resume
+Voting
    ↓
-LED Warnings
+EEPROM Status Update
    ↓
-Exam Completion
+Vote Count Update
    ↓
-Buzzer Alert
-```
+Election End
+   ↓
+Election Result
 
----
-
-## 📸 Output and Demonstration
-
-The repository contains real project demonstration images showing the implemented hardware and system output.
-
-### Keypad and LCD Output
-
-![Keypad and LCD Display](images/keypad_and_display.jpg)
-
-### Complete Hardware Setup
-
-![Project Hardware](images/project_hardware.jpg)
-
-### Temperature Monitoring Output
-
-![Temperature Display](images/temperature_display.jpg)
-
-These images provide visual evidence of the implemented hardware and system operation.
-
----
-
-## ⚠️ Challenges Faced and Solutions
-
-### 1. Multiplexed 7-Segment Display
-
-**Challenge:**
-Displaying the remaining examination time using a two-digit multiplexed 7-segment display requires continuous refreshing of both digits.
-
-**Solution:**
-Implemented multiplexing logic with appropriate timing and digit selection to provide a stable display.
-
-### 2. Pause / Resume Timing
-
-**Challenge:**
-The examination countdown should not decrease while the examination is paused.
-
-**Solution:**
-The pause time is recorded and excluded from the effective elapsed examination time.
-
-### 3. Temperature Measurement
-
-**Challenge:**
-The LM35 provides an analog voltage that must be converted into a meaningful temperature value.
-
-**Solution:**
-The ADC is used to convert the analog signal into a digital value, which is then processed to calculate the temperature.
-
-### 4. External Interrupt Handling
-
-**Challenge:**
-Configuration and pause/resume operations must respond to external events without affecting normal system operation.
-
-**Solution:**
-External interrupts and the VIC interrupt controller are used to handle event-driven operations.
-
-### 5. Multiple Peripheral Integration
-
-**Challenge:**
-Several peripherals must operate together while maintaining correct timing and system behavior.
-
-**Solution:**
-Each module was developed and tested individually before integrating the modules into the final application.
-
----
-
-## 📚 Embedded Concepts Demonstrated
-
+⚠️ Challenges and Solutions
+1. RFID Data Reception
+Challenge:
+The RFID reader continuously transmits card information and the microcontroller must correctly identify the received RFID frame.
+Solution:
+UART1 is used to receive and process RFID data according to the reader's communication format.
+2. Duplicate Voting
+Challenge:
+A voter must not be allowed to cast more than one vote.
+Solution:
+Voter status is maintained using external EEPROM. The system checks the stored status before allowing voting.
+3. Secure Administrator Access
+Challenge:
+Election configuration functions should not be accessible to unauthorized users.
+Solution:
+The administrator is authenticated using an authorized RFID card followed by password verification.
+4. Election Time Control
+Challenge:
+Voting must be available only during the configured election period.
+Solution:
+RTC-based time comparison is used to determine whether the election is active or closed.
+5. Multiple Peripheral Integration
+Challenge:
+Several peripherals must operate together while maintaining reliable system behavior.
+Solution:
+The system integrates peripherals through interfaces such as UART, I2C, GPIO, and RTC communication.
+📚 Embedded Concepts Demonstrated
 This project demonstrates practical implementation of:
-
-* ARM7 microcontroller programming
-* Embedded C
-* GPIO programming
-* Register-level programming
-* LCD interfacing
-* Matrix keypad interfacing
-* ADC interfacing
-* LM35 temperature sensing
-* RTC programming
-* External interrupts
-* VIC interrupt configuration
-* Multiplexed 7-segment display
-* Bit manipulation
-* Embedded timing and delays
-* Password-based access control
-* Real-time event handling
-* Modular peripheral integration
-
----
-
-## 🚀 Future Improvements
-
+- ARM7 microcontroller programming
+- LPC2148 programming
+- Embedded C
+- GPIO programming
+- Register-level programming
+- UART communication
+- I2C communication
+- RFID interfacing
+- EEPROM interfacing
+- RTC interfacing
+- LCD interfacing
+- Matrix keypad interfacing
+- Timers
+- Interrupts
+- Password-based authentication
+- Voter validation
+- Embedded debugging
+- Peripheral integration
+- Hardware-software integration
+🚀 Future Improvements
 Possible future improvements include:
+- Biometric voter authentication
+- Centralized election monitoring
+- CAN-based communication between voting units
+- PC-based election monitoring
+- Network connectivity
+- Remote result monitoring
+- Enhanced voter database management
+- Tamper detection
+- Secure encrypted voter records
+📊 Project Highlights
+Category	Implementation
+Microcontroller	LPC2148 ARM7
+Programming Language	Embedded C
+RFID Reader	EM-18
+RFID Communication	UART1
+Data Storage	I2C EEPROM
+Time Management	RTC
+Display	20×4 LCD
+User Input	4×4 Matrix Keypad
+Monitoring	UART Serial Terminal
+Authentication	RFID + Password
+Main Function	Secure Electronic Voting
 
-* Multiple examination hall support
-* Centralized monitoring through CAN or UART
-* Data logging
-* EEPROM-based password and configuration storage
-* Automatic attendance integration
-* PC/mobile monitoring interface
-* Real-time examination reports
 
----
+📸 Output and Demonstration
+Hardware Setup
 
-## 👨‍💻 Author
+LCD and Keypad Interface
 
-**Sampath Balpakeer**
+Serial Audit Log
 
+Election Result
+
+📌 Project Type
+Embedded Systems Project — ARM7 / LPC2148
+The project demonstrates practical embedded-system development by integrating RFID authentication, UART communication, I2C EEPROM, RTC, LCD, keypad, vote management, and secure access control.
+👨‍💻 Author
+Gaigula Mahesh
 Electronics and Communication Engineering
-Embedded Systems
-
----
-
-## 📌 Project Type
-
-**Embedded Systems Project — ARM7 / LPC2148**
-
-The project was developed as a practical embedded-system application integrating multiple hardware peripherals and real-time event management.
+Areas of Interest
+- Embedded Systems
+- Embedded C
+- C/C++
+- Microcontroller Programming
+- Firmware Development
+- Hardware-Software Integration
+📌 Project Summary
+Secure Ballot – RFID-Based Electronic Voting System demonstrates the practical integration of the LPC2148 ARM7 microcontroller, EM-18 RFID reader, UART1, I2C EEPROM, RTC, LCD, and keypad to develop a secure and controlled electronic voting system.
+The project focuses on secure administrator authentication, RFID-based voter validation, duplicate-vote prevention, election time management, vote counting, and election result handling.
+It provides hands-on experience in Embedded C firmware development, peripheral interfacing, communication protocols, data storage, real-time control, debugging, and hardware-software integration.
